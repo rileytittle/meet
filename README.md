@@ -5,8 +5,8 @@ A simple iPhone app for staying in touch with people.
 The app has three tabs:
 
 **Meet**
-- **Add people from Contacts.** Tap **+** to pick one or more contacts. The system picker is used, so no Contacts permission is needed.
-- **Meeting reminders.** Each person gets a reminder interval (every week, 2 weeks, month, or 3 months, or off). A local notification fires at 9 AM when it's time to meet again. Tap **We met today** to reset the clock. The list is sorted so whoever is due soonest is at the top.
+- **Add people from Contacts.** Tap **+** to search your contacts and pick one or more. Their contact photos show in the list. The app asks for Contacts access the first time.
+- **Meeting reminders.** Set any frequency for each person (every N days, weeks, or months, or off) and an optional start date for the first reminder. A local notification fires at 9 AM when it's time to meet again. Tap **We met today** to reset the clock. The list is sorted so whoever is due soonest is at the top.
 - **Prayer requests per person.** Tap a person to see their prayer requests, newest first. Tap **+** to add one, tap a request to edit it, and swipe to delete.
 
 **Prayer**
@@ -14,7 +14,7 @@ The app has three tabs:
 - Swipe right to mark a prayer as prayed for. It moves to the bottom, then works its way back up as you pray for others. Swipe left to delete. Tap a card to edit it.
 
 **Studies**
-- Add a book you're studying, the contact you're studying with, and how many chapters it has.
+- Add a book you're studying, the contact you're studying with (searchable, with their photo), and how many chapters it has.
 - Each time you meet, tap **We met and finished a chapter** to move the progress bar forward. Use the stepper to correct the count.
 
 ## Requirements
@@ -39,6 +39,7 @@ Meet/
     Study.swift                 A book study and its chapter progress
   Services/
     ReminderScheduler.swift     Local notification scheduling
+    ContactsService.swift       Reading contacts and their photos
   Views/
     ContentView.swift           The Meet / Prayer / Studies tabs
     PeopleListView.swift        Meet tab: people list and adding from Contacts
@@ -48,5 +49,6 @@ Meet/
     StudiesListView.swift       Studies tab list
     NewStudyView.swift          Add-a-study sheet
     StudyDetailView.swift       Study progress and details
-    ContactPicker.swift         Wrapper around the system contact picker
+    ContactsPickerView.swift    Searchable contact picker with photos
+    ContactAvatar.swift         Round contact photo or initials
 ```

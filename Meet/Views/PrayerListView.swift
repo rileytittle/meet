@@ -98,6 +98,7 @@ private struct PrayerCard: View {
             if request.person != nil || request.lastPrayedAt != nil {
                 HStack {
                     if let person = request.person {
+                        ContactAvatar(name: person.name, photoData: person.photoData, size: 16)
                         Text(person.name)
                     }
                     Spacer()

@@ -1,6 +1,5 @@
 import SwiftUI
 import SwiftData
-import Contacts
 
 struct NewStudyView: View {
     @Environment(\.dismiss) private var dismiss
@@ -8,7 +7,7 @@ struct NewStudyView: View {
 
     @State private var bookTitle = ""
     @State private var totalChapters = 12
-    @State private var partner: CNContact?
+    @State private var partner: ContactSelection?
     @State private var showingContactPicker = false
 
     private var trimmedTitle: String {
@@ -22,7 +21,15 @@ struct NewStudyView: View {
                 Button {
                     showingContactPicker = true
                 } label: {
-                    LabeledContent("Studying with", value: partner?.displayName ?? "Choose contact")
+                    HStack {
+                        Text("Studying with")
+                        Spacer()
+                        if let partner {
+                            ContactAvatar(name: partner.name, photoData: partner.photoData, size: 28)
+                        }
+                        Text(partner?.name ?? "Choose contact")
+                            .foregroundStyle(.secondary)
+                    }
                 }
                 .foregroundStyle(.primary)
                 Stepper("\(totalChapters) chapters", value: $totalChapters, in: 1...500)
@@ -41,20 +48,22 @@ struct NewStudyView: View {
                     .disabled(trimmedTitle.isEmpty)
                 }
             }
-            .background(
-                ContactPicker(isPresented: $showingContactPicker, allowsMultipleSelection: false) { contacts in
+            .sheet(isPresented: $showingContactPicker) {
+                ContactsPickerView(title: "Studying With") { contacts in
                     partner = contacts.first
                 }
-            )
+            }
         }
     }
 
     private func save() {
-        modelContext.insert(Study(
+        let study = Study(
             bookTitle: trimmedTitle,
             totalChapters: totalChapters,
-            partnerName: partner?.displayName,
-            partnerContactIdentifier: partner?.identifier
-        ))
+            partnerName: partner?.name,
+            partnerContactIdentifier: partner?.id
+        )
+        study.partnerPhotoData = partner?.photoData
+        modelContext.insert(study)
     }
 }

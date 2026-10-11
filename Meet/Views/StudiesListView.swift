@@ -65,9 +65,12 @@ private struct StudyRow: View {
             Text(study.bookTitle)
                 .font(.headline)
             if let partnerName = study.partnerName {
-                Text("with \(partnerName)")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                HStack(spacing: 6) {
+                    ContactAvatar(name: partnerName, photoData: study.partnerPhotoData, size: 20)
+                    Text("with \(partnerName)")
+                }
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
             }
             ProgressView(value: study.progress)
                 .tint(study.isFinished ? Color.green : Color.accentColor)

@@ -1,6 +1,5 @@
 import SwiftUI
 import SwiftData
-import Contacts
 
 struct PeopleListView: View {
     @Environment(\.modelContext) private var modelContext
@@ -48,7 +47,14 @@ struct PeopleListView: View {
                     }
                 }
             }
-            .background(ContactPicker(isPresented: $showingContactPicker, onSelect: addPeople))
+            .sheet(isPresented: $showingContactPicker) {
+                ContactsPickerView(
+                    title: "Add People",
+                    allowsMultipleSelection: true,
+                    excludedIdentifiers: Set(people.compactMap(\.contactIdentifier)),
+                    onDone: addPeople
+                )
+            }
             .task {
                 // Refresh reminders on launch so overdue people get nudged again.
                 for person in people {
@@ -58,11 +64,11 @@ struct PeopleListView: View {
         }
     }
 
-    private func addPeople(from contacts: [CNContact]) {
+    private func addPeople(from contacts: [ContactSelection]) {
         let existingIDs = Set(people.compactMap(\.contactIdentifier))
         let newPeople = contacts
-            .filter { !existingIDs.contains($0.identifier) }
-            .map { Person(name: $0.displayName, contactIdentifier: $0.identifier) }
+            .filter { !existingIDs.contains($0.id) }
+            .map { Person(name: $0.name, contactIdentifier: $0.id, photoData: $0.photoData) }
 
         guard !newPeople.isEmpty else { return }
         for person in newPeople {
@@ -89,7 +95,8 @@ private struct PersonRow: View {
     let person: Person
 
     var body: some View {
-        HStack {
+        HStack(spacing: 12) {
+            ContactAvatar(name: person.name, photoData: person.photoData, size: 44)
             VStack(alignment: .leading, spacing: 2) {
                 Text(person.name)
                     .font(.headline)
