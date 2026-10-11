@@ -7,14 +7,6 @@ struct PersonDetailView: View {
     @State private var isAddingRequest = false
     @State private var editingRequest: PrayerRequest?
 
-    private static let reminderOptions: [(days: Int, label: String)] = [
-        (7, "Every week"),
-        (14, "Every 2 weeks"),
-        (30, "Every month"),
-        (90, "Every 3 months"),
-        (0, "Off"),
-    ]
-
     /// Newest first.
     private var sortedRequests: [PrayerRequest] {
         person.prayerRequests.sorted { $0.createdAt > $1.createdAt }
@@ -22,6 +14,12 @@ struct PersonDetailView: View {
 
     var body: some View {
         List {
+            Section {
+                ContactAvatar(name: person.name, photoData: person.photoData, size: 88)
+                    .frame(maxWidth: .infinity)
+                    .listRowBackground(Color.clear)
+            }
+
             Section("Prayer Requests") {
                 if sortedRequests.isEmpty {
                     Text("No prayer requests yet. Tap + to add one.")
@@ -44,10 +42,18 @@ struct PersonDetailView: View {
             }
 
             Section("Meeting Reminder") {
-                Picker("Remind me", selection: $person.reminderIntervalDays) {
-                    ForEach(Self.reminderOptions, id: \.days) { option in
-                        Text(option.label).tag(option.days)
+                Toggle("Remind me to meet", isOn: remindersEnabled)
+                if person.remindersEnabled {
+                    Stepper(value: $person.reminderEvery, in: 1...365) {
+                        Text(person.frequencyDescription)
                     }
+                    Picker("Unit", selection: $person.reminderUnit) {
+                        ForEach(ReminderUnit.allCases) { unit in
+                            Text(unit.rawValue.capitalized).tag(unit)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    DatePicker("Start date", selection: startDate, displayedComponents: .date)
                 }
                 LabeledContent("Last met", value: person.lastMetAt?.formatted(date: .abbreviated, time: .omitted) ?? "Not yet")
                 if let due = person.nextMeetingDue {
@@ -81,9 +87,28 @@ struct PersonDetailView: View {
                 request.text = text
             }
         }
-        .onChange(of: person.reminderIntervalDays) {
-            ReminderScheduler.schedule(for: person)
-        }
+        .onChange(of: person.reminderIntervalDays) { ReminderScheduler.schedule(for: person) }
+        .onChange(of: person.reminderUnitRaw) { ReminderScheduler.schedule(for: person) }
+        .onChange(of: person.reminderStartDate) { ReminderScheduler.schedule(for: person) }
+    }
+
+    private var remindersEnabled: Binding<Bool> {
+        Binding(
+            get: { person.remindersEnabled },
+            set: { person.reminderEvery = $0 ? 1 : 0 }
+        )
+    }
+
+    /// Shows the chosen start date, or the default first reminder (one interval after the person was added).
+    private var startDate: Binding<Date> {
+        Binding(
+            get: {
+                person.reminderStartDate
+                    ?? Calendar.current.date(byAdding: person.reminderUnit.calendarComponent, value: person.reminderEvery, to: person.createdAt)
+                    ?? .now
+            },
+            set: { person.reminderStartDate = Calendar.current.startOfDay(for: $0) }
+        )
     }
 
     private func deleteRequests(at offsets: IndexSet) {

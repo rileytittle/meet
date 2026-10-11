@@ -36,13 +36,22 @@ struct StudyDetailView: View {
                 Button {
                     showingContactPicker = true
                 } label: {
-                    LabeledContent("Studying with", value: study.partnerName ?? "Choose contact")
+                    HStack {
+                        Text("Studying with")
+                        Spacer()
+                        if let partnerName = study.partnerName {
+                            ContactAvatar(name: partnerName, photoData: study.partnerPhotoData, size: 28)
+                        }
+                        Text(study.partnerName ?? "Choose contact")
+                            .foregroundStyle(.secondary)
+                    }
                 }
                 .foregroundStyle(.primary)
                 if study.partnerName != nil {
                     Button("Remove partner", role: .destructive) {
                         study.partnerName = nil
                         study.partnerContactIdentifier = nil
+                        study.partnerPhotoData = nil
                     }
                 }
                 // Can't go below the chapters already done; lower "Chapters done" first.
@@ -53,12 +62,13 @@ struct StudyDetailView: View {
         }
         .navigationTitle(study.bookTitle)
         .navigationBarTitleDisplayMode(.inline)
-        .background(
-            ContactPicker(isPresented: $showingContactPicker, allowsMultipleSelection: false) { contacts in
+        .sheet(isPresented: $showingContactPicker) {
+            ContactsPickerView(title: "Studying With") { contacts in
                 guard let contact = contacts.first else { return }
-                study.partnerName = contact.displayName
-                study.partnerContactIdentifier = contact.identifier
+                study.partnerName = contact.name
+                study.partnerContactIdentifier = contact.id
+                study.partnerPhotoData = contact.photoData
             }
-        )
+        }
     }
 }

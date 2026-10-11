@@ -9,6 +9,7 @@ final class Study {
     /// Name of the contact you're studying with, if any.
     var partnerName: String?
     var partnerContactIdentifier: String?
+    @Attribute(.externalStorage) var partnerPhotoData: Data? = nil
     var lastMetAt: Date?
     var createdAt: Date
 
