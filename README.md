@@ -2,9 +2,20 @@
 
 A simple iPhone app for staying in touch with people.
 
+The app has three tabs:
+
+**Meet**
 - **Add people from Contacts.** Tap **+** to pick one or more contacts. The system picker is used, so no Contacts permission is needed.
 - **Meeting reminders.** Each person gets a reminder interval (every week, 2 weeks, month, or 3 months, or off). A local notification fires at 9 AM when it's time to meet again. Tap **We met today** to reset the clock. The list is sorted so whoever is due soonest is at the top.
-- **Prayer requests.** Tap a person to see their prayer requests, newest first. Tap **+** to add one, tap a request to edit it, and swipe to delete.
+- **Prayer requests per person.** Tap a person to see their prayer requests, newest first. Tap **+** to add one, tap a request to edit it, and swipe to delete.
+
+**Prayer**
+- Every prayer as a card: general prayers you add here plus each person's prayer requests (with the person's name in the bottom-left corner).
+- Swipe right to mark a prayer as prayed for. It moves to the bottom, then works its way back up as you pray for others. Swipe left to delete. Tap a card to edit it.
+
+**Studies**
+- Add a book you're studying, the contact you're studying with, and how many chapters it has.
+- Each time you meet, tap **We met and finished a chapter** to move the progress bar forward. Use the stepper to correct the count.
 
 ## Requirements
 
@@ -14,7 +25,7 @@ A simple iPhone app for staying in touch with people.
 ## Running
 
 1. Open `Meet.xcodeproj` in Xcode.
-2. Select the **Meet** target, then **Signing & Capabilities**, and choose your Team. If `com.rileytittle.meet` is already taken, change the bundle identifier.
+2. Select the **Meet** target, then **Signing & Capabilities**, and choose your Team. If `com.colemeetapp.meet` is already taken, change the bundle identifier.
 3. Pick a simulator or your iPhone and press **Run**.
 
 ## Project layout
@@ -24,12 +35,18 @@ Meet/
   MeetApp.swift                 App entry point and SwiftData container
   Models/
     Person.swift                A person, their reminder interval, and when you last met
-    PrayerRequest.swift         A dated note attached to a person
+    PrayerRequest.swift         A dated prayer, for a person or general
+    Study.swift                 A book study and its chapter progress
   Services/
     ReminderScheduler.swift     Local notification scheduling
   Views/
-    PeopleListView.swift        Main list and adding from Contacts
+    ContentView.swift           The Meet / Prayer / Studies tabs
+    PeopleListView.swift        Meet tab: people list and adding from Contacts
     PersonDetailView.swift      Prayer requests and reminder settings for a person
-    PrayerRequestEditor.swift   Add/edit sheet
+    PrayerRequestEditor.swift   Add/edit sheet for prayers
+    PrayerListView.swift        Prayer tab cards and swipe actions
+    StudiesListView.swift       Studies tab list
+    NewStudyView.swift          Add-a-study sheet
+    StudyDetailView.swift       Study progress and details
     ContactPicker.swift         Wrapper around the system contact picker
 ```

@@ -115,5 +115,5 @@ private struct PersonRow: View {
 
 #Preview {
     PeopleListView()
-        .modelContainer(for: [Person.self, PrayerRequest.self], inMemory: true)
+        .modelContainer(for: [Person.self, PrayerRequest.self, Study.self], inMemory: true)
 }

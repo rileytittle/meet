@@ -1,7 +1,7 @@
 import SwiftUI
 import ContactsUI
 
-/// Presents the system contact picker (multi-select) when `isPresented` becomes true.
+/// Presents the system contact picker when `isPresented` becomes true.
 /// The system picker runs out of process, so no Contacts permission prompt is needed.
 ///
 /// Attach it with `.background(ContactPicker(...))`. It presents from a hidden host
@@ -9,10 +9,11 @@ import ContactsUI
 /// SwiftUI sheet shows a blank sheet.
 struct ContactPicker: UIViewControllerRepresentable {
     @Binding var isPresented: Bool
+    var allowsMultipleSelection = true
     var onSelect: ([CNContact]) -> Void
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(parent: self)
+        allowsMultipleSelection ? MultipleSelectionCoordinator(parent: self) : Coordinator(parent: self)
     }
 
     func makeUIViewController(context: Context) -> UIViewController {
@@ -31,7 +32,8 @@ struct ContactPicker: UIViewControllerRepresentable {
         }
     }
 
-    final class Coordinator: NSObject, CNContactPickerDelegate {
+    /// Single selection: tapping a contact picks it and closes the picker.
+    class Coordinator: NSObject, CNContactPickerDelegate {
         var parent: ContactPicker
         var isPresenting = false
 
@@ -39,9 +41,8 @@ struct ContactPicker: UIViewControllerRepresentable {
             self.parent = parent
         }
 
-        // Implementing the plural variant enables multiple selection.
-        func contactPicker(_ picker: CNContactPickerViewController, didSelect contacts: [CNContact]) {
-            parent.onSelect(contacts)
+        func contactPicker(_ picker: CNContactPickerViewController, didSelect contact: CNContact) {
+            parent.onSelect([contact])
             finish()
         }
 
@@ -49,9 +50,19 @@ struct ContactPicker: UIViewControllerRepresentable {
             finish()
         }
 
-        private func finish() {
+        fileprivate func finish() {
             isPresenting = false
             parent.isPresented = false
+        }
+    }
+
+    /// The picker switches to multiple selection (checkmarks and a Done button)
+    /// when its delegate implements the plural `didSelect contacts:` method.
+    final class MultipleSelectionCoordinator: Coordinator {
+        @objc(contactPicker:didSelectContacts:)
+        func contactPicker(_ picker: CNContactPickerViewController, didSelect contacts: [CNContact]) {
+            parent.onSelect(contacts)
+            finish()
         }
     }
 }
