@@ -5,8 +5,8 @@ import SwiftData
 struct MeetApp: App {
     var body: some Scene {
         WindowGroup {
-            PeopleListView()
+            ContentView()
         }
-        .modelContainer(for: [Person.self, PrayerRequest.self])
+        .modelContainer(for: [Person.self, PrayerRequest.self, Study.self])
     }
 }
