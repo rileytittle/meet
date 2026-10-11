@@ -66,7 +66,7 @@
 			name = Gather;
 			packageProductDependencies = (
 			);
-			productName = Meet;
+			productName = Gather;
 			productReference = AA0000000000000000000001 /* Gather.app */;
 			productType = "com.apple.product-type.application";
 		};

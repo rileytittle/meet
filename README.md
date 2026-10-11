@@ -2,8 +2,6 @@
 
 A simple iPhone app for staying in touch with people: meeting with them, praying for them, and studying together.
 
-The Xcode project and target are still named `Meet`; only the app's display name is Gather.
-
 The app has three tabs:
 
 **Meet**
@@ -26,14 +24,14 @@ The app has three tabs:
 
 ## Running
 
-1. Open `Meet.xcodeproj` in Xcode.
-2. Select the **Meet** target, then **Signing & Capabilities**, and choose your Team. If `com.colemeetapp.meet` is already taken, change the bundle identifier.
+1. Open `Gather.xcodeproj` in Xcode.
+2. Select the **Gather** target, then **Signing & Capabilities**, and choose your Team. If `com.colemeetapp.meet` is already taken, change the bundle identifier.
 3. Pick a simulator or your iPhone and press **Run**.
 
 ## Project layout
 
 ```
-Meet/
+Gather/
   GatherApp.swift               App entry point and SwiftData container
   Models/
     Person.swift                A person, their reminder interval, and when you last met
