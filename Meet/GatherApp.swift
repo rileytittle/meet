@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 
 @main
-struct MeetApp: App {
+struct GatherApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()

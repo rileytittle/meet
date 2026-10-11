@@ -34,7 +34,7 @@ The app has three tabs:
 
 ```
 Meet/
-  MeetApp.swift                 App entry point and SwiftData container
+  GatherApp.swift               App entry point and SwiftData container
   Models/
     Person.swift                A person, their reminder interval, and when you last met
     PrayerRequest.swift         A dated prayer, for a person or general
