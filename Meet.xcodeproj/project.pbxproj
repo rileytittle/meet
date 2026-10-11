@@ -195,8 +195,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = Meet;
-				INFOPLIST_KEY_NSContactsUsageDescription = "Meet shows your contacts so you can choose people to add and see their photos.";
+				INFOPLIST_KEY_CFBundleDisplayName = Gather;
+				INFOPLIST_KEY_NSContactsUsageDescription = "Gather shows your contacts so you can choose people to add and see their photos.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -223,8 +223,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = Meet;
-				INFOPLIST_KEY_NSContactsUsageDescription = "Meet shows your contacts so you can choose people to add and see their photos.";
+				INFOPLIST_KEY_CFBundleDisplayName = Gather;
+				INFOPLIST_KEY_NSContactsUsageDescription = "Gather shows your contacts so you can choose people to add and see their photos.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

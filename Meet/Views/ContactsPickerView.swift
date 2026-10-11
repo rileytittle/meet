@@ -57,7 +57,7 @@ struct ContactsPickerView: View {
             ContentUnavailableView {
                 Label("No Access to Contacts", systemImage: "person.crop.circle.badge.exclamationmark")
             } description: {
-                Text("Allow Meet to access your contacts in Settings to add people.")
+                Text("Allow Gather to access your contacts in Settings to add people.")
             } actions: {
                 Button("Open Settings") {
                     if let url = URL(string: UIApplication.openSettingsURLString) { openURL(url) }

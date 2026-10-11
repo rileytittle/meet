@@ -1,6 +1,8 @@
-# meet
+# Gather
 
-A simple iPhone app for staying in touch with people.
+A simple iPhone app for staying in touch with people: meeting with them, praying for them, and studying together.
+
+The Xcode project and target are still named `Meet`; only the app's display name is Gather.
 
 The app has three tabs:
 
