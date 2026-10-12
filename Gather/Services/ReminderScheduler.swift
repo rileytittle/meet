@@ -8,7 +8,7 @@ enum ReminderScheduler {
 
     @discardableResult
     static func requestAuthorization() async -> Bool {
-        let options: UNAuthorizationOptions = [.alert, .sound, .badge]
+        let options: UNAuthorizationOptions = [.alert, .sound]
         return (try? await UNUserNotificationCenter.current().requestAuthorization(options: options)) ?? false
     }
 

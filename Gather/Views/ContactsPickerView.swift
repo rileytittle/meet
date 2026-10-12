@@ -17,6 +17,7 @@ struct ContactsPickerView: View {
     @State private var searchText = ""
     @State private var isLoading = true
     @State private var accessDenied = false
+    @State private var showingSystemPicker = false
 
     private var filteredContacts: [ContactSelection] {
         let query = searchText.trimmingCharacters(in: .whitespaces)
@@ -57,12 +58,24 @@ struct ContactsPickerView: View {
             ContentUnavailableView {
                 Label("No Access to Contacts", systemImage: "person.crop.circle.badge.exclamationmark")
             } description: {
-                Text("Allow Gather to access your contacts in Settings to add people.")
+                Text("You can still choose people from Contacts. To search contacts and see their photos here, allow access in Settings.")
             } actions: {
+                Button("Choose from Contacts") { showingSystemPicker = true }
+                    .buttonStyle(.borderedProminent)
                 Button("Open Settings") {
                     if let url = URL(string: UIApplication.openSettingsURLString) { openURL(url) }
                 }
             }
+            // Fallback that works without Contacts permission.
+            .background(
+                SystemContactPicker(isPresented: $showingSystemPicker, allowsMultipleSelection: allowsMultipleSelection) { selections in
+                    let newSelections = selections.filter { !excludedIdentifiers.contains($0.id) }
+                    guard !newSelections.isEmpty else { return }
+                    onDone(newSelections)
+                    // Let the system picker finish closing before closing this sheet.
+                    DispatchQueue.main.async { dismiss() }
+                }
+            )
         } else if isLoading {
             ProgressView()
         } else {
