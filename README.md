@@ -5,7 +5,7 @@ A simple iPhone app for staying in touch with people: meeting with them, praying
 The app has three tabs:
 
 **Meet**
-- **Add people from Contacts.** Tap **+** to search your contacts and pick one or more. Their contact photos show in the list. The app asks for Contacts access the first time.
+- **Add people from Contacts.** Tap **+** to search your contacts and pick one or more. Their contact photos show in the list. The app asks for Contacts access the first time; if it's denied, you can still pick people with the system contact picker.
 - **Meeting reminders.** Set any frequency for each person (every N days, weeks, or months, or off) and an optional start date for the first reminder. A local notification fires at 9 AM when it's time to meet again. Tap **We met today** to reset the clock. The list is sorted so whoever is due soonest is at the top.
 - **Prayer requests per person.** Tap a person to see their prayer requests, newest first. Tap **+** to add one, tap a request to edit it, and swipe to delete.
 
@@ -51,4 +51,10 @@ Gather/
     StudyDetailView.swift       Study progress and details
     ContactsPickerView.swift    Searchable contact picker with photos
     ContactAvatar.swift         Round contact photo or initials
+    SystemContactPicker.swift   System contact picker, used when Contacts access is denied
+  PrivacyInfo.xcprivacy         Privacy manifest (no tracking, no data collected)
 ```
+
+## Privacy
+
+All data stays on the device. See [PRIVACY.md](PRIVACY.md) for the privacy policy used for the App Store listing.
