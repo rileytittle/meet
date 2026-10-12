@@ -42,5 +42,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .modelContainer(for: [Person.self, PrayerRequest.self, Study.self], inMemory: true)
+        .modelContainer(for: [Person.self, PrayerRequest.self, Study.self, Meeting.self], inMemory: true)
 }

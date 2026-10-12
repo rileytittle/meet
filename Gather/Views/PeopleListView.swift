@@ -5,6 +5,7 @@ struct PeopleListView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Person.name) private var people: [Person]
     @State private var showingContactPicker = false
+    @State private var schedulingPerson: Person?
 
     /// People whose meeting is due soonest come first; people with reminders off go last.
     private var sortedPeople: [Person] {
@@ -20,7 +21,9 @@ struct PeopleListView: View {
             List {
                 ForEach(sortedPeople) { person in
                     NavigationLink(value: person) {
-                        PersonRow(person: person)
+                        PersonRow(person: person) {
+                            schedulingPerson = person
+                        }
                     }
                 }
                 .onDelete(perform: deletePeople)
@@ -54,6 +57,9 @@ struct PeopleListView: View {
                     excludedIdentifiers: Set(people.compactMap(\.contactIdentifier)),
                     onDone: addPeople
                 )
+            }
+            .sheet(item: $schedulingPerson) { person in
+                MeetingEditorView(person: person)
             }
             .task {
                 // Refresh reminders on launch so overdue people get nudged again.
@@ -93,6 +99,7 @@ struct PeopleListView: View {
 
 private struct PersonRow: View {
     let person: Person
+    let onSchedule: () -> Void
 
     var body: some View {
         HStack(spacing: 12) {
@@ -110,10 +117,20 @@ private struct PersonRow: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
+            // Borderless so tapping it doesn't also open the person.
+            Button(action: onSchedule) {
+                Image(systemName: "calendar.badge.plus")
+                    .font(.title3)
+            }
+            .buttonStyle(.borderless)
+            .accessibilityLabel("Schedule a meeting with \(person.name)")
         }
     }
 
     private var statusText: String {
+        if let meeting = person.upcomingMeeting {
+            return "Meeting \(meeting.date.formatted(date: .abbreviated, time: .shortened))"
+        }
         guard let due = person.nextMeetingDue else { return "No reminder" }
         if person.isDue { return "Time to meet" }
         return "Meet \(due.formatted(.relative(presentation: .named)))"
@@ -122,5 +139,5 @@ private struct PersonRow: View {
 
 #Preview {
     PeopleListView()
-        .modelContainer(for: [Person.self, PrayerRequest.self, Study.self], inMemory: true)
+        .modelContainer(for: [Person.self, PrayerRequest.self, Study.self, Meeting.self], inMemory: true)
 }

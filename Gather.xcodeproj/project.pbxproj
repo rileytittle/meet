@@ -198,6 +198,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Gather;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_NSCalendarsWriteOnlyAccessUsageDescription = "Gather adds the meetings you schedule to your calendar.";
 				INFOPLIST_KEY_NSContactsUsageDescription = "Gather shows your contacts so you can choose people to add and see their photos.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -228,6 +229,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = Gather;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_NSCalendarsWriteOnlyAccessUsageDescription = "Gather adds the meetings you schedule to your calendar.";
 				INFOPLIST_KEY_NSContactsUsageDescription = "Gather shows your contacts so you can choose people to add and see their photos.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

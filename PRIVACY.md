@@ -12,7 +12,9 @@ Everything you put into Gather stays on your device. Gather has no accounts, no 
 
 **Contacts.** If you allow it, Gather reads your contacts so you can search for and choose the people you want to add, and to show their photos. Only the contacts you add are saved in the app: their name, their contact photo, and an identifier used to keep that photo up to date. If you don't allow access, you can still choose people with the iPhone's built-in contact picker, and Gather only sees the contacts you pick.
 
-**What you enter.** Prayer requests, book studies, meeting reminders, and dates you met with people are stored only in the app on your device.
+**Calendar.** When you schedule a meeting and choose "Add to Calendar", Gather asks for permission to add events to your calendar. It can only add events; it cannot see or read anything already on your calendar.
+
+**What you enter.** Prayer requests, book studies, scheduled meetings, meeting reminders, and dates you met with people are stored only in the app on your device.
 
 **Notifications.** Meeting reminders are scheduled by your iPhone itself. They include the person's name (for example, "Time to meet with Sam") and never include prayer request text.
 
