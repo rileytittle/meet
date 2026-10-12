@@ -84,5 +84,5 @@ private struct StudyRow: View {
 
 #Preview {
     StudiesListView()
-        .modelContainer(for: [Person.self, PrayerRequest.self, Study.self], inMemory: true)
+        .modelContainer(for: [Person.self, PrayerRequest.self, Study.self, Meeting.self], inMemory: true)
 }

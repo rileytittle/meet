@@ -6,10 +6,18 @@ struct PersonDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var isAddingRequest = false
     @State private var editingRequest: PrayerRequest?
+    @State private var isSchedulingMeeting = false
 
     /// Newest first.
     private var sortedRequests: [PrayerRequest] {
         person.prayerRequests.sorted { $0.createdAt > $1.createdAt }
+    }
+
+    /// Upcoming meetings soonest first, then past meetings most recent first.
+    private var sortedMeetings: [Meeting] {
+        let upcoming = person.meetings.filter(\.isUpcoming).sorted { $0.date < $1.date }
+        let past = person.meetings.filter { !$0.isUpcoming }.sorted { $0.date > $1.date }
+        return upcoming + past
     }
 
     var body: some View {
@@ -39,6 +47,24 @@ struct PersonDetailView: View {
                     }
                 }
                 .onDelete(perform: deleteRequests)
+            }
+
+            Section {
+                Button {
+                    isSchedulingMeeting = true
+                } label: {
+                    Label("Schedule a Meeting", systemImage: "calendar.badge.plus")
+                }
+                ForEach(sortedMeetings) { meeting in
+                    MeetingRow(meeting: meeting)
+                }
+                .onDelete(perform: deleteMeetings)
+            } header: {
+                Text("Meetings")
+            } footer: {
+                if !person.meetings.isEmpty {
+                    Text("Deleting a meeting here doesn't remove it from your calendar.")
+                }
             }
 
             Section("Meeting Reminder") {
@@ -82,6 +108,9 @@ struct PersonDetailView: View {
                 request.person = person
             }
         }
+        .sheet(isPresented: $isSchedulingMeeting) {
+            MeetingEditorView(person: person)
+        }
         .sheet(item: $editingRequest) { request in
             PrayerRequestEditor(title: "Edit Prayer Request", initialText: request.text) { text in
                 request.text = text
@@ -111,6 +140,16 @@ struct PersonDetailView: View {
         )
     }
 
+    private func deleteMeetings(at offsets: IndexSet) {
+        let snapshot = sortedMeetings
+        for index in offsets {
+            let meeting = snapshot[index]
+            person.meetings.removeAll { $0 == meeting }
+            modelContext.delete(meeting)
+        }
+        ReminderScheduler.schedule(for: person)
+    }
+
     private func deleteRequests(at offsets: IndexSet) {
         let snapshot = sortedRequests
         for index in offsets {
@@ -118,5 +157,25 @@ struct PersonDetailView: View {
             person.prayerRequests.removeAll { $0 == request }
             modelContext.delete(request)
         }
+    }
+}
+
+private struct MeetingRow: View {
+    let meeting: Meeting
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(meeting.title)
+                .foregroundStyle(meeting.isUpcoming ? .primary : .secondary)
+            Text(details)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var details: String {
+        let when = meeting.date.formatted(date: .abbreviated, time: .shortened)
+        guard let location = meeting.location else { return when }
+        return "\(when) · \(location)"
     }
 }

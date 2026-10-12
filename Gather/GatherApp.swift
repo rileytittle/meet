@@ -7,6 +7,6 @@ struct GatherApp: App {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(for: [Person.self, PrayerRequest.self, Study.self])
+        .modelContainer(for: [Person.self, PrayerRequest.self, Study.self, Meeting.self])
     }
 }

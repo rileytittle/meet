@@ -45,6 +45,9 @@ final class Person {
     @Relationship(deleteRule: .cascade, inverse: \PrayerRequest.person)
     var prayerRequests: [PrayerRequest] = []
 
+    @Relationship(deleteRule: .cascade, inverse: \Meeting.person)
+    var meetings: [Meeting] = []
+
     init(name: String, contactIdentifier: String? = nil, photoData: Data? = nil) {
         self.name = name
         self.contactIdentifier = contactIdentifier
@@ -74,15 +77,27 @@ final class Person {
         return "Every \(reminderEvery) \(reminderUnit.label(count: reminderEvery))"
     }
 
+    /// The soonest meeting that hasn't finished yet.
+    var upcomingMeeting: Meeting? {
+        meetings.filter(\.isUpcoming).min { $0.date < $1.date }
+    }
+
+    /// The most recent time you met or have a meeting scheduled, whichever is later.
+    /// Reminders count from here, so scheduling a meeting restarts the cycle from that date.
+    var lastMeetingAnchor: Date? {
+        ([lastMetAt] + meetings.map { Optional($0.date) }).compactMap { $0 }.max()
+    }
+
     /// When the next meeting is due:
-    /// - the start date, if one is set and you haven't met since it;
-    /// - otherwise one interval after you last met (or after the person was added).
+    /// - the start date, if one is set and you haven't met (or scheduled a meeting) since it;
+    /// - otherwise one interval after the latest meeting (or after the person was added).
     var nextMeetingDue: Date? {
         guard remindersEnabled else { return nil }
-        if let start = reminderStartDate, lastMetAt.map({ $0 < start }) ?? true {
+        let anchor = lastMeetingAnchor
+        if let start = reminderStartDate, anchor.map({ $0 < start }) ?? true {
             return start
         }
-        return Calendar.current.date(byAdding: reminderUnit.calendarComponent, value: reminderEvery, to: lastMetAt ?? createdAt)
+        return Calendar.current.date(byAdding: reminderUnit.calendarComponent, value: reminderEvery, to: anchor ?? createdAt)
     }
 
     var isDue: Bool {

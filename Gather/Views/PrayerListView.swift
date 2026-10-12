@@ -123,5 +123,5 @@ private struct PrayerCard: View {
 
 #Preview {
     PrayerListView()
-        .modelContainer(for: [Person.self, PrayerRequest.self, Study.self], inMemory: true)
+        .modelContainer(for: [Person.self, PrayerRequest.self, Study.self, Meeting.self], inMemory: true)
 }
