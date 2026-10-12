@@ -1,0 +1,10 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M512 423.224C575.171 464.008 617.961 533.649 621.728 613.503C588.842 630.438 551.538 640 512 640C472.462 640 435.158 630.439 402.271 613.503C406.038 533.649 448.829 464.008 512 423.224Z" fill="url(#paint0_radial_1_8)"/>
+<defs>
+<radialGradient id="paint0_radial_1_8" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(512 531.612) rotate(90) scale(108.388 109.728)">
+<stop stop-color="white"/>
+<stop offset="0.5" stop-color="#FFF1C9"/>
+<stop offset="1" stop-color="#F6C463"/>
+</radialGradient>
+</defs>
+</svg>
