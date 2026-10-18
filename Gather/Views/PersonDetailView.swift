@@ -7,6 +7,9 @@ struct PersonDetailView: View {
     @State private var isAddingRequest = false
     @State private var editingRequest: PrayerRequest?
     @State private var isSchedulingMeeting = false
+    @State private var editingMeeting: Meeting?
+    @State private var meetingPendingDeletion: Meeting?
+    @State private var calendarErrorMessage: String?
 
     /// Newest first.
     private var sortedRequests: [PrayerRequest] {
@@ -56,14 +59,18 @@ struct PersonDetailView: View {
                     Label("Schedule a Meeting", systemImage: "calendar.badge.plus")
                 }
                 ForEach(sortedMeetings) { meeting in
-                    MeetingRow(meeting: meeting)
+                    Button {
+                        editingMeeting = meeting
+                    } label: {
+                        MeetingRow(meeting: meeting)
+                    }
                 }
                 .onDelete(perform: deleteMeetings)
             } header: {
                 Text("Meetings")
             } footer: {
                 if !person.meetings.isEmpty {
-                    Text("Deleting a meeting here doesn't remove it from your calendar.")
+                    Text("Tap a meeting to change it.")
                 }
             }
 
@@ -111,6 +118,25 @@ struct PersonDetailView: View {
         .sheet(isPresented: $isSchedulingMeeting) {
             MeetingEditorView(person: person)
         }
+        .sheet(item: $editingMeeting) { meeting in
+            MeetingEditorView(person: person, meeting: meeting)
+        }
+        .confirmationDialog("Delete Meeting", isPresented: confirmingMeetingDeletion, presenting: meetingPendingDeletion) { meeting in
+            Button("Delete from Gather and Calendar", role: .destructive) {
+                Task { await deleteMeetingAndEvent(meeting) }
+            }
+            Button("Delete from Gather Only", role: .destructive) {
+                delete(meeting)
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: { _ in
+            Text("This meeting is also on your calendar.")
+        }
+        .alert("Couldn't Remove from Calendar", isPresented: showingCalendarError) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text("\(calendarErrorMessage ?? "") The meeting was removed from Gather.")
+        }
         .sheet(item: $editingRequest) { request in
             PrayerRequestEditor(title: "Edit Prayer Request", initialText: request.text) { text in
                 request.text = text
@@ -140,13 +166,47 @@ struct PersonDetailView: View {
         )
     }
 
+    private var confirmingMeetingDeletion: Binding<Bool> {
+        Binding(
+            get: { meetingPendingDeletion != nil },
+            set: { if !$0 { meetingPendingDeletion = nil } }
+        )
+    }
+
+    private var showingCalendarError: Binding<Bool> {
+        Binding(
+            get: { calendarErrorMessage != nil },
+            set: { if !$0 { calendarErrorMessage = nil } }
+        )
+    }
+
+    /// Meetings that are also on the calendar ask whether to remove the calendar event too.
     private func deleteMeetings(at offsets: IndexSet) {
         let snapshot = sortedMeetings
         for index in offsets {
             let meeting = snapshot[index]
-            person.meetings.removeAll { $0 == meeting }
-            modelContext.delete(meeting)
+            if meeting.calendarEventID != nil {
+                meetingPendingDeletion = meeting
+            } else {
+                delete(meeting)
+            }
         }
+    }
+
+    private func deleteMeetingAndEvent(_ meeting: Meeting) async {
+        if let eventID = meeting.calendarEventID {
+            do {
+                try await CalendarService.removeEvent(id: eventID)
+            } catch {
+                calendarErrorMessage = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+            }
+        }
+        delete(meeting)
+    }
+
+    private func delete(_ meeting: Meeting) {
+        person.meetings.removeAll { $0 == meeting }
+        modelContext.delete(meeting)
         ReminderScheduler.schedule(for: person)
     }
 
@@ -165,8 +225,15 @@ private struct MeetingRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(meeting.title)
-                .foregroundStyle(meeting.isUpcoming ? .primary : .secondary)
+            HStack(spacing: 4) {
+                Text(meeting.title)
+                if meeting.calendarEventID != nil {
+                    Image(systemName: "calendar")
+                        .font(.caption)
+                        .accessibilityLabel("On your calendar")
+                }
+            }
+            .foregroundStyle(meeting.isUpcoming ? .primary : .secondary)
             Text(details)
                 .font(.caption)
                 .foregroundStyle(.secondary)

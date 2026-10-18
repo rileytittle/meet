@@ -1,18 +1,22 @@
 import SwiftUI
 import SwiftData
 
-/// Schedules a meeting with a person and optionally adds it to the iPhone calendar.
+/// Schedules a new meeting with a person, or edits an existing one,
+/// keeping the iPhone calendar event in sync when there is one.
 struct MeetingEditorView: View {
     let person: Person
+    /// The meeting being edited, or nil when scheduling a new one.
+    let meeting: Meeting?
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
 
     @State private var title: String
     @State private var date: Date
-    @State private var durationMinutes = 60
-    @State private var location = ""
-    @State private var addToCalendar = true
+    @State private var durationMinutes: Int
+    @State private var place: MeetingPlace?
+    @State private var syncWithCalendar: Bool
+    @State private var showingPlacePicker = false
     @State private var isSaving = false
     @State private var calendarErrorMessage: String?
 
@@ -23,18 +27,22 @@ struct MeetingEditorView: View {
         (120, "2 hours"),
     ]
 
-    init(person: Person) {
+    init(person: Person, meeting: Meeting? = nil) {
         self.person = person
-        _title = State(initialValue: "Meet with \(person.name)")
-        _date = State(initialValue: Self.nextFullHour())
+        self.meeting = meeting
+        _title = State(initialValue: meeting?.title ?? "Meet with \(person.name)")
+        _date = State(initialValue: meeting?.date ?? Self.nextFullHour())
+        _durationMinutes = State(initialValue: meeting?.durationMinutes ?? 60)
+        _place = State(initialValue: meeting?.place)
+        // New meetings go on the calendar by default; edits keep whatever was chosen before.
+        _syncWithCalendar = State(initialValue: meeting.map { $0.calendarEventID != nil } ?? true)
     }
+
+    private var isEditing: Bool { meeting != nil }
+    private var hasCalendarEvent: Bool { meeting?.calendarEventID != nil }
 
     private var trimmedTitle: String {
         title.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    private var trimmedLocation: String {
-        location.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     var body: some View {
@@ -42,8 +50,35 @@ struct MeetingEditorView: View {
             Form {
                 Section {
                     TextField("Title", text: $title)
-                    TextField("Place", text: $location)
                 }
+
+                Section {
+                    Button {
+                        showingPlacePicker = true
+                    } label: {
+                        HStack(spacing: 12) {
+                            Image(systemName: place?.hasCoordinate == true ? "mappin.circle.fill" : "mappin.and.ellipse")
+                                .font(.title3)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(place?.name ?? "Add a place")
+                                    .foregroundStyle(place == nil ? .secondary : .primary)
+                                if let address = place?.address {
+                                    Text(address)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                        }
+                    }
+                    if place != nil {
+                        Button("Remove Place", role: .destructive) { place = nil }
+                    }
+                } footer: {
+                    if place?.hasCoordinate == true {
+                        Text("With a map location, Calendar can show directions and send a Time to Leave alert based on travel time.")
+                    }
+                }
+
                 Section {
                     DatePicker("Starts", selection: $date, displayedComponents: [.date, .hourAndMinute])
                     Picker("Length", selection: $durationMinutes) {
@@ -52,13 +87,16 @@ struct MeetingEditorView: View {
                         }
                     }
                 }
+
                 Section {
-                    Toggle("Add to Calendar", isOn: $addToCalendar)
+                    Toggle(hasCalendarEvent ? "Update in Calendar" : "Add to Calendar", isOn: $syncWithCalendar)
                 } footer: {
-                    Text("Your reminders to meet with \(person.name) will start counting from this meeting.")
+                    if !isEditing {
+                        Text("Your reminders to meet with \(person.name) will start counting from this meeting.")
+                    }
                 }
             }
-            .navigationTitle("Schedule Meeting")
+            .navigationTitle(isEditing ? "Edit Meeting" : "Schedule Meeting")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -69,7 +107,10 @@ struct MeetingEditorView: View {
                         .disabled(trimmedTitle.isEmpty || isSaving)
                 }
             }
-            .alert("Couldn't Add to Calendar", isPresented: showingCalendarError) {
+            .sheet(isPresented: $showingPlacePicker) {
+                PlacePickerView { place = $0 }
+            }
+            .alert("Couldn't Update Calendar", isPresented: showingCalendarError) {
                 Button("OK", role: .cancel) {}
             } message: {
                 Text("\(calendarErrorMessage ?? "") The meeting is still saved in Gather.")
@@ -92,29 +133,33 @@ struct MeetingEditorView: View {
 
     private func save() {
         isSaving = true
-        let meeting = Meeting(
-            title: trimmedTitle,
-            date: date,
-            durationMinutes: durationMinutes,
-            location: trimmedLocation.isEmpty ? nil : trimmedLocation
-        )
-        modelContext.insert(meeting)
-        person.meetings.append(meeting)
+
+        let meeting: Meeting
+        if let existing = self.meeting {
+            meeting = existing
+        } else {
+            meeting = Meeting(title: trimmedTitle, date: date)
+            modelContext.insert(meeting)
+            person.meetings.append(meeting)
+        }
+        meeting.title = trimmedTitle
+        meeting.date = date
+        meeting.durationMinutes = durationMinutes
+        meeting.place = place
         ReminderScheduler.schedule(for: person)
 
-        guard addToCalendar else {
+        guard syncWithCalendar else {
             dismiss()
             return
         }
+        let details = CalendarService.EventDetails(meeting)
         Task {
             do {
-                meeting.calendarEventID = try await CalendarService.addEvent(
-                    title: meeting.title,
-                    start: meeting.date,
-                    end: meeting.endDate,
-                    location: meeting.location,
-                    notes: "Scheduled in Gather"
-                )
+                if let eventID = meeting.calendarEventID {
+                    meeting.calendarEventID = try await CalendarService.updateEvent(id: eventID, with: details)
+                } else {
+                    meeting.calendarEventID = try await CalendarService.addEvent(details)
+                }
                 dismiss()
             } catch {
                 calendarErrorMessage = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription

@@ -7,7 +7,7 @@ The app has three tabs:
 **Meet**
 - **Add people from Contacts.** Tap **+** to search your contacts and pick one or more. Their contact photos show in the list. The app asks for Contacts access the first time; if it's denied, you can still pick people with the system contact picker.
 - **Meeting reminders.** Set any frequency for each person (every N days, weeks, or months, or off) and an optional start date for the first reminder. A local notification fires at 9 AM when it's time to meet again. Tap **We met today** to reset the clock. The list is sorted so whoever is due soonest is at the top.
-- **Schedule meetings.** Tap the calendar button on a person (or **Schedule a Meeting** on their screen) to set a title, date and time, length, and place. It can be added to your iPhone calendar (Gather asks only for permission to add events, not read them), and the reminder cycle restarts from that meeting's date.
+- **Schedule meetings.** Tap the calendar button on a person (or **Schedule a Meeting** on their screen) to set a title, date and time, length, and place. Places are searched on Apple Maps, so the calendar event gets a real map location (directions and Time to Leave alerts). Meetings can be added to your iPhone calendar, and tapping a meeting lets you edit it and update the calendar event; deleting can remove the event too. Adding asks only for permission to add events; editing or removing asks for full calendar access the first time. The reminder cycle restarts from the latest meeting's date.
 - **Prayer requests per person.** Tap a person to see their prayer requests, newest first. Tap **+** to add one, tap a request to edit it, and swipe to delete.
 
 **Prayer**
@@ -42,12 +42,14 @@ Gather/
   Services/
     ReminderScheduler.swift     Local notification scheduling
     ContactsService.swift       Reading contacts and their photos
-    CalendarService.swift       Adding meetings to the iPhone calendar
+    CalendarService.swift       Adding, updating, and removing calendar events
+    PlaceSearch.swift           Apple Maps place search for meeting places
   Views/
     ContentView.swift           The Meet / Prayer / Studies tabs
     PeopleListView.swift        Meet tab: people list and adding from Contacts
     PersonDetailView.swift      Prayer requests and reminder settings for a person
-    MeetingEditorView.swift     Schedule-a-meeting sheet
+    MeetingEditorView.swift     Schedule or edit a meeting
+    PlacePickerView.swift       Search for a meeting place
     PrayerRequestEditor.swift   Add/edit sheet for prayers
     PrayerListView.swift        Prayer tab cards and swipe actions
     StudiesListView.swift       Studies tab list
