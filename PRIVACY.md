@@ -1,6 +1,6 @@
 # Gather Privacy Policy
 
-_Effective October 12, 2026_
+_Effective October 18, 2026_
 
 Gather is an app for staying in touch with people: reminders to meet with them, prayer requests, and book studies. This policy explains what information the app uses and what happens to it.
 
@@ -12,7 +12,9 @@ Everything you put into Gather stays on your device. Gather has no accounts, no 
 
 **Contacts.** If you allow it, Gather reads your contacts so you can search for and choose the people you want to add, and to show their photos. Only the contacts you add are saved in the app: their name, their contact photo, and an identifier used to keep that photo up to date. If you don't allow access, you can still choose people with the iPhone's built-in contact picker, and Gather only sees the contacts you pick.
 
-**Calendar.** When you schedule a meeting and choose "Add to Calendar", Gather asks for permission to add events to your calendar. It can only add events; it cannot see or read anything already on your calendar.
+**Calendar.** When you schedule a meeting and choose "Add to Calendar", Gather asks for permission to add events to your calendar. If you later edit or delete one of those meetings and choose to update your calendar, Gather asks for full calendar access so it can change or remove the event it added. Gather only ever looks up the events it created; it doesn't read, store, or share anything else on your calendar.
+
+**Place search.** When you search for a meeting place, the text you type is sent to Apple Maps to find matching places, under Apple's privacy policy. Gather doesn't use your location.
 
 **What you enter.** Prayer requests, book studies, scheduled meetings, meeting reminders, and dates you met with people are stored only in the app on your device.
 
